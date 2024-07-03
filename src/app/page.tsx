@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LogInIcon } from "lucide-react";
+import { LogInIcon, LogOutIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 
@@ -21,7 +21,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 
 import { useTransition } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -33,6 +33,8 @@ export type FormSchema = z.infer<typeof formSchema>;
 
 const Home = () => {
   const [isPending, startTransition] = useTransition();
+
+  const { data } = useSession()
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -49,12 +51,24 @@ const Home = () => {
         <CardContent className="flex justify-between p-5 items-center">
           <h1>Home</h1>
 
-          
-          <Button className="gap-x-2" onClick={() => signIn('google')}>
-            <LogInIcon />
-            Sign in
-          </Button>
-         
+          {!data?.user ? (
+            <Button className="gap-x-2" onClick={() => signIn('google')}>
+              <LogInIcon />
+              Sign in
+            </Button>
+          ):(
+            <div className="flex gap-5" >
+              <Avatar>
+                <AvatarImage src={data.user.image || ""} alt={data.user.name || ""}/>
+              </Avatar>
+
+              <Button className="gap-x-2" onClick={() => signOut()}>
+                <LogOutIcon />
+                Sign out
+              </Button>
+            </div>
+          )}
+
         </CardContent>
       </Card>
 
