@@ -21,6 +21,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 
 import { useTransition } from "react";
+import { signIn } from "next-auth/react";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -49,7 +50,7 @@ const Home = () => {
           <h1>Home</h1>
 
           
-          <Button className="gap-x-2">
+          <Button className="gap-x-2" onClick={() => signIn('google')}>
             <LogInIcon />
             Sign in
           </Button>
