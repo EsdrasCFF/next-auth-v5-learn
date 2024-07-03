@@ -22,6 +22,9 @@ import { AvatarImage } from "@radix-ui/react-avatar";
 
 import { useTransition } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { createUser } from "@/actions/create-user";
+import { toast } from "sonner";
+
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -32,7 +35,6 @@ const formSchema = z.object({
 export type FormSchema = z.infer<typeof formSchema>;
 
 const Home = () => {
-  const [isPending, startTransition] = useTransition();
 
   const { data } = useSession()
 
@@ -40,10 +42,16 @@ const Home = () => {
     resolver: zodResolver(formSchema),
   });
 
-
-  const onSubmit = (data: FormSchema) => {
-   
-  };
+  async function onSubmit(data: FormSchema) {
+    try {
+      await createUser(data)
+      toast.success('User created successfully')
+      form.reset()
+    } catch (err) {
+      console.error(err)
+      toast.error('Occurred error when create user')
+    }
+  }
 
   return (
     <div className="container py-5 space-y-5">
@@ -52,7 +60,7 @@ const Home = () => {
           <h1>Home</h1>
 
           {!data?.user ? (
-            <Button className="gap-x-2" onClick={() => signIn('google')}>
+            <Button className="gap-x-2" onClick={() => signIn()}>
               <LogInIcon />
               Sign in
             </Button>
@@ -78,7 +86,7 @@ const Home = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)}  className="space-y-8">
               <FormField
                 control={form.control}
                 name="name"
@@ -127,7 +135,7 @@ const Home = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit">
                 Submit
               </Button>
             </form>
