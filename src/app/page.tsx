@@ -34,7 +34,9 @@ const formSchema = z.object({
 
 export type FormSchema = z.infer<typeof formSchema>;
 
-const Home = () => {
+export default function Home() {
+
+  const [isPending, startTransition] = useTransition()
 
   const { data } = useSession()
 
@@ -42,15 +44,19 @@ const Home = () => {
     resolver: zodResolver(formSchema),
   });
 
-  async function onSubmit(data: FormSchema) {
-    try {
-      await createUser(data)
-      toast.success('User created successfully')
-      form.reset()
-    } catch (err) {
-      console.error(err)
-      toast.error('Occurred error when create user')
-    }
+  function onSubmit(data: FormSchema) {
+    startTransition(async () => {
+
+      try {
+        await createUser(data)
+        toast.success('User created successfully')
+        form.reset()
+      } catch (err) {
+        console.error(err)
+        toast.error('Occurred error when create user')
+      }
+    })
+
   }
 
   return (
@@ -135,7 +141,7 @@ const Home = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">
+              <Button type="submit" disabled={isPending}>
                 Submit
               </Button>
             </form>
@@ -145,5 +151,3 @@ const Home = () => {
     </div>
   );
 };
-
-export default Home;
