@@ -3,13 +3,18 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
+import Resend from "next-auth/providers/resend"
 import { compare } from "bcryptjs"
  
  
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    Google, 
+    Google,
+    Resend({
+      apiKey: process.env.AUTH_RESEND_KEY as string,
+      from: "onboarding@resend.dev"
+    }), 
     Credentials({
       credentials: {
         email: { label: "Email", type: 'email' },
